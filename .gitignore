@@ -1,0 +1,30 @@
+# 🐍 Python virtual environment
+venv/
+
+# 📜 Whisper/temporary audio files
+/tmp/
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.txt
+
+# 🔊 Piper model binaries (optional, can be downloaded)
+~/.local/share/piper/models/
+
+# 🧠 Ollama models (local, large, and user-specific)
+~/.ollama/models/
+
+# 📁 System logs and cache
+logs/
+*.log
+*.bak
+*.swp
+
+# 💻 OS and editor files
+.DS_Store
+Thumbs.db
+*.swo
+*.swn
+*.sublime-workspace
+*.vscode/
