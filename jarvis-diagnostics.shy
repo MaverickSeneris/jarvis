@@ -1,0 +1,71 @@
+#!/bin/bash
+
+echo "🤖 Jarvis AI Command Deck - Diagnostics & Maintenance"
+echo "======================================================="
+echo ""
+
+### 1. Disk Usage
+echo "💾 Disk Space:"
+du -sh ~/jarvis ~/.local/share/piper ~/.ollama 2>/dev/null
+echo ""
+
+### 2. RAM + CPU Usage
+echo "🧠 RAM and CPU (top 3 resource hogs):"
+ps -eo pid,comm,%mem,%cpu --sort=-%mem | head -n 4
+echo ""
+
+### 3. Python venv Check
+echo "🐍 Python venv:"
+[[ -d ~/jarvis/venv ]] && echo "✅ venv exists" || echo "❌ Missing: python3 -m venv ~/jarvis/venv"
+echo ""
+
+### 4. Voice Tools
+echo "🎤 Voice Tools:"
+command -v whisper &>/dev/null && echo "✅ Whisper installed" || echo "❌ Whisper missing"
+command -v piper &>/dev/null && echo "✅ Piper installed" || echo "❌ Piper missing"
+echo ""
+
+### 5. Ollama Model Check
+echo "🧩 Ollama Model:"
+ollama list | grep jarvis &>/dev/null && echo "✅ 'jarvis' model is available" || echo "❌ 'jarvis' model is missing"
+echo ""
+
+### 6. Audio Device Check
+echo "🔊 Audio Devices:"
+arecord -l | grep card &>/dev/null && echo "✅ Mic detected" || echo "⚠️ No mic found"
+aplay -l | grep card &>/dev/null && echo "✅ Speaker detected" || echo "⚠️ No speaker found"
+echo ""
+
+### 7. Aliases Check
+echo "🔗 Shell Aliases:"
+alias | grep jarvis
+echo ""
+
+### 8. Temp File Cleanup
+echo "🧹 Temp Cleanup:"
+if ls /tmp/voice.* &>/dev/null; then
+  read -p "⚠️ Temp files found. Delete them now? [y/N]: " clean
+  [[ "$clean" =~ ^[Yy]$ ]] && rm /tmp/voice.* && echo "✅ Temp files deleted." || echo "🕸️ Skipped."
+else
+  echo "✅ No temp files."
+fi
+echo ""
+
+### 9. Ollama Token Speed Benchmark
+echo "⚡ Token Speed Benchmark:"
+TEST_RESPONSE=$(echo "Say hello Jarvis" | ollama run jarvis --verbose 2>&1 | tee /tmp/jarvis-benchmark.log)
+TOKENS_PER_SEC=$(grep -oP 'tokens\/s: \K[0-9.]+' /tmp/jarvis-benchmark.log | tail -n1)
+[[ -z "$TOKENS_PER_SEC" ]] && echo "❌ Could not retrieve token speed." || echo "✅ Token speed: $TOKENS_PER_SEC tokens/s"
+echo ""
+
+### 10. Last Interaction Log
+echo "📜 Last Whisper Transcript:"
+[[ -f /tmp/voice.txt ]] && tail -n5 /tmp/voice.txt || echo "⚠️ No recent voice input."
+echo ""
+
+### 11. Restart Option
+read -p "🔄 Restart Ollama now? [y/N]: " restart
+[[ "$restart" =~ ^[Yy]$ ]] && ollama stop jarvis && ollama run jarvis --verbose & echo "🚀 Jarvis restarted." || echo "⏭️ Skipped."
+
+echo ""
+echo "✅ All systems reviewed. Jarvis remains at your service, Sir Maverick."
